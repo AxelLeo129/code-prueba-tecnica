@@ -1,0 +1,15 @@
+<mat-card class="store-card">
+  <h2>Aplicar Cupón de Descuento</h2>
+  <mat-form-field appearance="outline">
+    <mat-label>Ingrese el código del cupón</mat-label>
+    <input matInput [(ngModel)]="couponCode">
+  </mat-form-field>
+
+  <button mat-raised-button color="accent" (click)="validateCoupon()">Validar</button>
+
+  <div *ngIf="discount !== null" class="discount-message">
+    <h3 *ngIf="discount && discount > 0" class="success">¡Cupón válido! Descuento: {{ discount }}%</h3>
+    <h3 *ngIf="discount === 0 && !status" class="error">{{ message }}</h3>
+    <h3 *ngIf="discount === 0 && expirationDate" class="error">Fecha: {{ expirationDate | date: 'dd/MM/yyyy' }} </h3>
+  </div>
+</mat-card>

@@ -1,0 +1,25 @@
+<mat-card class="coupon-card">
+    <h2>Generar Cupón de Descuento</h2>
+    <form (ngSubmit)="generateCoupon()" [formGroup]="couponForm">
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Código</mat-label>
+        <input matInput formControlName="code" placeholder="Ej: DESCUENTO50">
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Porcentaje de Descuento</mat-label>
+        <input matInput type="number" formControlName="discount_percentage" placeholder="Ej: 20">
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha de Expiración</mat-label>
+        <input matInput type="date" formControlName="expiration_date">
+      </mat-form-field>
+  
+      <button mat-raised-button color="primary" type="submit" [disabled]="couponForm.invalid">
+        Generar Cupón
+      </button>
+    </form>
+  </mat-card>
+  

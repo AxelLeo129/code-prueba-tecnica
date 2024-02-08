@@ -41,7 +41,7 @@ exports.createCoupon = async (req, res) => {
  * @async
  * @param {import('express').Request} req - Objeto de solicitud HTTP.
  * @param {import('express').Response} res - Objeto de respuesta HTTP.
- * @returns {Promise<void>} Responde con la validez del cupón o un error en caso de fallo.
+ * @returns {Promise<void>} Responde con la validez del cupón o los motivos de su invalidez.
  * 
  * @example
  * // Petición PUT a /api/coupons/DESCUENTO50
@@ -54,19 +54,30 @@ exports.validateCoupon = async (req, res) => {
     try {
         const { code } = req.params;
 
-        // Buscar el cupón activo y no expirado
-        const coupon = await Coupon.findOne({ where: { code, status: true, expiration_date: { [Op.gt]: new Date() } } });
+        // Buscar el cupón en una sola consulta
+        const coupon = await Coupon.findOne({ where: { code } });
 
-        // Si el cupón no es válido, devolver mensaje de error
+        // Si el cupón no existe
         if (!coupon) {
-            const expiredCoupon = await Coupon.findOne({ where: { code } });
-            return res.status(404).json({ 
-                message: 'Cupón inválido o expirado', 
-                expiration_date: expiredCoupon?.expiration_date || null, 
-                valid: expiredCoupon?.status || false 
+            return res.status(404).json({ message: 'Cupón no encontrado', valid: false });
+        }
+
+        // Si el cupón ya está inactivo
+        if (!coupon.status) {
+            return res.status(400).json({ 
+                message: 'Cupón inválido: ya ha sido utilizado',
+                status: coupon.status 
             });
         }
-        
+
+        // Si el cupón ha expirado
+        if (new Date(coupon.expiration_date) < new Date()) {
+            return res.status(400).json({ 
+                message: 'Cupón inválido: ha expirado',
+                expiration_date: coupon.expiration_date 
+            });
+        }
+
         // Cambiar el estado del cupón a inválido después de su uso
         await coupon.update({ status: false });
 
